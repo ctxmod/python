@@ -73,7 +73,7 @@ def get_settings() -> Settings:
         raise SystemExit(1)
 ```
 
-[Configuration Management](configuration.md)
+- [Configuration Management](configuration.md)
 
 ### 3. Create Environment Files
 
@@ -131,7 +131,7 @@ def test_settings() -> Settings:
 
 Use `monkeypatch.setenv()` for tests that verify environment variable loading.
 
-[Type Safety](../../typing/reference/type_safety.md)
+- [Type Safety](../../typing/reference/type_safety.md)
 
 ### 7. Verify the Setup
 

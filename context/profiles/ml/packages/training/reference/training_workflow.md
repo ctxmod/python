@@ -10,7 +10,7 @@ Procedure for implementing a training loop with checkpointing, early stopping, a
 - Model defined as `nn.Module` with typed `forward` method
 - Dataset classes implemented with `__getitem__` and `__len__`
 
-[Experiment Setup](../../experiments/reference/experiment_setup.md)
+- [Experiment Setup](../../experiments/reference/experiment_setup.md)
 
 ## Training Workflow
 
@@ -31,7 +31,7 @@ def setup_training(cfg: DictConfig, device: torch.device) -> TrainingComponents:
     return TrainingComponents(model, optimizer, scheduler, nn.CrossEntropyLoss(), train_loader, val_loader)
 ```
 
-[PyTorch Patterns](../../framework/reference/pytorch.md)
+- [PyTorch Patterns](../../framework/reference/pytorch.md)
 
 ### 2. Implement Checkpoint Resumption
 
@@ -110,7 +110,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, criterion, conf
     return {"best_val_loss": best_val_loss, **metrics}
 ```
 
-[Training, Checkpointing, and Resumption](training.md)
+- [Training, Checkpointing, and Resumption](training.md)
 
 ### 5. Verify the Training Script
 

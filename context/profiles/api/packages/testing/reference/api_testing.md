@@ -117,7 +117,7 @@ def client(test_session: AsyncSession) -> TestClient:
 
 This fixture creates tables before each test and drops them after, providing full isolation. The dependency override routes all database operations through the test session.
 
-[FastAPI Patterns](../../fastapi/reference/fastapi.md)
+- [FastAPI Patterns](../../fastapi/reference/fastapi.md)
 
 ### 4. Mock External Dependencies
 
@@ -156,7 +156,7 @@ uv run pytest tests/routes/test_items.py -v  # Single resource
 uv run pytest -k "test_create" -v            # Pattern match
 ```
 
-[Testing Validation](../../../../core/packages/testing/reference/testing_procedure.md)
+- [Testing Validation](../../../../core/packages/testing/reference/testing_procedure.md)
 
 ## Thresholds
 

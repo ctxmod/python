@@ -39,7 +39,7 @@ async_session_factory = async_sessionmaker(engine, expire_on_commit=False)
 
 Set `expire_on_commit=False` to prevent `MissingGreenlet` errors when accessing attributes on committed objects in async contexts.
 
-[Database Patterns](sqlalchemy_async.md)
+- [Database Patterns](sqlalchemy_async.md)
 
 ### 2. Create the Session Dependency
 
@@ -58,7 +58,7 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
 
 Register engine disposal in the application lifespan context manager. Call `await engine.dispose()` after `yield` in the lifespan to clean up connections on shutdown.
 
-[FastAPI Patterns](../../fastapi/reference/fastapi.md)
+- [FastAPI Patterns](../../fastapi/reference/fastapi.md)
 
 ### 3. Define ORM Models
 
@@ -162,7 +162,7 @@ uv run pytest tests/ -v
 
 **Alembic cannot detect model changes**: Verify that all model modules are imported before `target_metadata` is set in `env.py`. Use an explicit `import app.models` statement.
 
-[API Testing](../../testing/reference/api_testing.md)
+- [API Testing](../../testing/reference/api_testing.md)
 
 ## Related
 

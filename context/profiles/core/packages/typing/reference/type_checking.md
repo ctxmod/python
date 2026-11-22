@@ -85,7 +85,7 @@ module = ["pandas.*", "scipy.*"]
 reportMissingTypeStubs = false
 ```
 
-[Type Safety](type_safety.md)
+- [Type Safety](type_safety.md)
 
 ### 4. Handle Type Ignore Comments
 
@@ -150,7 +150,7 @@ Use per-module overrides to exclude legacy code. Remove overrides as modules rec
 
 **Slow analysis**: For monorepos, run type checking per-package rather than globally.
 
-[Python Toolchain](../../toolchain/reference/tooling.md)
+- [Python Toolchain](../../toolchain/reference/tooling.md)
 
 ## Related
 

@@ -4,8 +4,8 @@ Training loops require checkpointing with model, optimizer, and RNG state for de
 
 Training loops must save checkpoints that include model state, optimizer state, learning rate scheduler state, and RNG states for deterministic resumption. Implement early stopping based on validation metrics. Report progress through structured logging at configurable intervals.
 
-[Training, Checkpointing, and Resumption](../reference/training.md)
-[Testing Philosophy](../../../../core/packages/testing/reference/testing.md)
+- [Training, Checkpointing, and Resumption](../reference/training.md)
+- [Testing Philosophy](../../../../core/packages/testing/reference/testing.md)
 
 ## Examples
 

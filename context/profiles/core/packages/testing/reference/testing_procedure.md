@@ -70,7 +70,7 @@ exclude_lines = [
 
 Coverage reporting provides visibility into untested code paths. Do not use coverage as a gate; focus on writing tests for meaningful behavior and edge cases instead.
 
-[Testing Philosophy](testing.md)
+- [Testing Philosophy](testing.md)
 
 ### 4. Organize Fixtures
 
@@ -173,7 +173,7 @@ They run only through the explicit manual invocation documented in the testing p
 
 **Coverage lower than expected**: Verify `source` in `[tool.coverage.run]` points to `src/`.
 
-[Python Toolchain](../../toolchain/reference/tooling.md)
+- [Python Toolchain](../../toolchain/reference/tooling.md)
 
 ## Related
 

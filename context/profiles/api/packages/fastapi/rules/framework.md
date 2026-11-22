@@ -8,8 +8,8 @@ Use FastAPI as the API framework. Organize endpoints with `APIRouter` grouped by
 
 FastAPI's dependency injection integrates with Python's type system, providing automatic request parsing, validation, and OpenAPI documentation from type hints. Router-based organization keeps endpoint definitions modular and testable. The `Depends` system extends the base profile's constructor injection pattern with request-scoped lifecycle management, enabling clean separation between HTTP handling and business logic. The thin-handler rule is what makes that separation observable: once a handler constructs storage queries or invokes a model directly, the injected service boundary exists on paper only.
 
-[FastAPI Patterns](../reference/fastapi.md)
-[Contract-First Architecture](../../../../core/packages/contracts/reference/contracts.md)
+- [FastAPI Patterns](../reference/fastapi.md)
+- [Contract-First Architecture](../../../../core/packages/contracts/reference/contracts.md)
 
 ## Examples
 

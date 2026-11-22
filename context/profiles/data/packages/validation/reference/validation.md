@@ -20,8 +20,8 @@ Internal function calls between pipeline stages do not need runtime validation. 
 
 This file specializes the base profile's boundary law for pipeline work; it does not restate it. The model-class ladder, the mapping-not-mirroring discipline, and the prohibition on passing an untyped mapping as a component interface are the parent's and hold here unchanged — a decoded record becomes a typed model at the boundary and travels as one afterwards. What this file adds is the throughput specialization: on high-volume decode paths, msgspec may stand in for Pydantic as the boundary validator. That is a choice of validator, never a licence to skip validation or to hand a raw mapping onward.
 
-[Type Safety](../../../../core/packages/typing/reference/type_safety.md)
-[Model Boundaries](../../../../core/packages/typing/reference/model_boundaries.md)
+- [Type Safety](../../../../core/packages/typing/reference/type_safety.md)
+- [Model Boundaries](../../../../core/packages/typing/reference/model_boundaries.md)
 
 ## Pydantic v2 Patterns
 

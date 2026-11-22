@@ -8,7 +8,7 @@ Validate all external data at system boundaries using Pydantic v2 or msgspec. Us
 
 Data pipelines ingest data from sources outside the system's control: files, APIs, databases, message queues. Without boundary validation, malformed records propagate through transformation stages and produce corrupt output or silent failures. Strict validation at ingestion catches problems early, before compute resources are spent on invalid data. Pydantic v2 provides expressive validation with a strict mode that prevents implicit type coercion, while msgspec delivers 2-10x faster deserialization for high-throughput scenarios.
 
-[Data Validation](../reference/validation.md)
+- [Data Validation](../reference/validation.md)
 
 ## Examples
 

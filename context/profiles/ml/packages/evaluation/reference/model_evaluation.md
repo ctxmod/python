@@ -23,7 +23,7 @@ def load_model_for_eval(checkpoint_path: Path, model: nn.Module, device: torch.d
     return model
 ```
 
-[Training, Checkpointing, and Resumption](../../training/reference/training.md)
+- [Training, Checkpointing, and Resumption](../../training/reference/training.md)
 
 ### 2. Compute Evaluation Metrics
 
@@ -54,7 +54,7 @@ def evaluate_model(model: nn.Module, test_loader: DataLoader, criterion: nn.Modu
 
 Log all metrics to MLflow for cross-run comparison.
 
-[Experiment Design and Tracking](../../experiments/reference/experiments.md)
+- [Experiment Design and Tracking](../../experiments/reference/experiments.md)
 
 ### 3. Compare Against Baselines
 
@@ -106,7 +106,7 @@ def model_size_info(model: nn.Module) -> dict[str, float]:
 uv run python evaluate.py checkpoint=outputs/experiment/checkpoints/best.pt
 ```
 
-[PyTorch Patterns](../../framework/reference/pytorch.md)
+- [PyTorch Patterns](../../framework/reference/pytorch.md)
 
 ## Thresholds
 

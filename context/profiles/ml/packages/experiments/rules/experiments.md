@@ -8,7 +8,7 @@ Use Hydra for hierarchical configuration management. Track all experiments with 
 
 Hydra's composable YAML configurations enable reproducible experiments through configuration versioning and override syntax, eliminating hardcoded hyperparameters scattered across training scripts. MLflow provides a centralized experiment registry that tracks parameter-metric relationships across runs, making it possible to compare experiments and reproduce results. Standardized directory structure prevents checkpoint and log collisions between concurrent experiments.
 
-[Experiment Design and Tracking](../reference/experiments.md)
+- [Experiment Design and Tracking](../reference/experiments.md)
 
 ## Examples
 

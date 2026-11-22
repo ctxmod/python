@@ -8,11 +8,11 @@ Define Pydantic models with `ConfigDict(strict=True)` for all request bodies and
 
 Strict mode rejects type coercion (e.g., string "1" silently becoming integer 1), catching malformed input at the API boundary before it reaches business logic. Separating request and response schemas prevents leaking internal fields (database IDs, timestamps, soft-delete flags) through input models and allows each to evolve independently. Field constraints embedded in Pydantic models generate OpenAPI validation documentation without additional configuration. The generated-versus-hand-authored split matters for the same reason: a hand-authored transport model is a second source of truth for a shape the contract already owns, and the two diverge quietly.
 
-[Request and Response Validation](../reference/validation.md)
-[FastAPI Patterns](../../fastapi/reference/fastapi.md)
-[Type Safety](../../../../core/packages/typing/reference/type_safety.md)
-[Model Boundaries](../../../../core/packages/typing/reference/model_boundaries.md)
-[Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
+- [Request and Response Validation](../reference/validation.md)
+- [FastAPI Patterns](../../fastapi/reference/fastapi.md)
+- [Type Safety](../../../../core/packages/typing/reference/type_safety.md)
+- [Model Boundaries](../../../../core/packages/typing/reference/model_boundaries.md)
+- [Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
 
 ## Examples
 

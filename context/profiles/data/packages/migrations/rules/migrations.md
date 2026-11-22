@@ -8,7 +8,7 @@ Use Alembic with SQLAlchemy 2.0 async engines for all schema migrations. Configu
 
 Schema changes without migration tooling produce unreproducible database states across environments. Alembic's autogeneration detects model-to-schema drift, while explicit async engine integration keeps migrations compatible with `asyncpg` and `aiosqlite` drivers. Multi-location sourcing enables independent packages to own their migrations without merge conflicts in a single directory. The expand-contract pattern decomposes breaking changes into backward-compatible steps, preventing downtime during deployment. Testing against both SQLite (for speed) and PostgreSQL (for fidelity) catches dialect-specific issues before they reach production.
 
-[Database Migration Management](../reference/migrations.md)
+- [Database Migration Management](../reference/migrations.md)
 
 ## Examples
 

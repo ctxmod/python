@@ -61,7 +61,7 @@ paths:
   checkpoint_dir: "${paths.output_dir}/checkpoints"
 ```
 
-[Experiment Design and Tracking](experiments.md)
+- [Experiment Design and Tracking](experiments.md)
 
 ### 3. Create the Training Entry Point
 
@@ -86,7 +86,7 @@ def main(cfg: DictConfig) -> float:
     return result["best_val_loss"]
 ```
 
-[PyTorch Patterns](../../framework/reference/pytorch.md)
+- [PyTorch Patterns](../../framework/reference/pytorch.md)
 
 ### 4. Set Up Directory Structure
 
@@ -118,7 +118,7 @@ uv run pytest tests/ -v
 
 Verify: Hydra resolves configuration, MLflow creates a run with logged parameters, a checkpoint appears in the output directory, and the training loop completes one epoch.
 
-[Model Evaluation](../../evaluation/reference/model_evaluation.md)
+- [Model Evaluation](../../evaluation/reference/model_evaluation.md)
 
 ## Decision Support
 

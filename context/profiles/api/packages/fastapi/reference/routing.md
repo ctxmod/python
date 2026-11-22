@@ -132,7 +132,7 @@ class NotFoundError(AppError):
 
 Service-layer code raises `NotFoundError("Item", item_id)`. The exception handler converts it to the problem-details response. Handlers stay clean of error formatting logic.
 
-[Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
+- [Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
 
 ## Pagination
 

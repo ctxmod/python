@@ -37,22 +37,22 @@ The one thing this skill exists to prevent is the reversed order: writing the ha
 
 ### Contract-first architecture and generated-code authority
 
-[Contract-First Architecture](../../../../../core/packages/contracts/reference/contracts.md) (required reading)
+- [Contract-First Architecture](../../../../../core/packages/contracts/reference/contracts.md) (required reading)
 
 ### Model classes, mapping, and typed boundaries
 
-[Model Boundaries](../../../../../core/packages/typing/reference/model_boundaries.md) (required reading)
+- [Model Boundaries](../../../../../core/packages/typing/reference/model_boundaries.md) (required reading)
 
 ### Typed errors, problem details, and the three idempotency levels
 
-[Error Handling and Resilience](../../../../../core/packages/errors/reference/errors.md) (required reading)
+- [Error Handling and Resilience](../../../../../core/packages/errors/reference/errors.md) (required reading)
 
 ### The contract gate
 
-[Contract Testing Validation](../../../../../core/packages/contracts/reference/contract_testing.md) (required reading)
+- [Contract Testing Validation](../../../../../core/packages/contracts/reference/contract_testing.md) (required reading)
 
 ### Supporting material
 
-[Project Setup](../../../../../core/packages/toolchain/reference/project_setup.md)
-[Testing Philosophy](../../../../../core/packages/testing/reference/testing.md)
-[Type Safety](../../../../../core/packages/typing/reference/type_safety.md)
+- [Project Setup](../../../../../core/packages/toolchain/reference/project_setup.md)
+- [Testing Philosophy](../../../../../core/packages/testing/reference/testing.md)
+- [Type Safety](../../../../../core/packages/typing/reference/type_safety.md)

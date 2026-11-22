@@ -83,7 +83,7 @@ Production databases evolve. The API layer must tolerate schema changes without 
 
 **Expand-contract pattern.** Breaking changes split across releases. First, expand: add the new column or table alongside the old. Then migrate data. Finally, contract: remove the old structure once all consumers have migrated. The API supports both old and new schemas during the transition period.
 
-[Database Migration Management](../../migrations/reference/migrations.md)
+- [Database Migration Management](../../migrations/reference/migrations.md)
 
 **Query resilience.** Avoid `SELECT *` in production code. Explicit column lists prevent breakage when new columns appear and avoid transferring unnecessary data. Queries that name their columns tolerate additive schema changes without modification.
 

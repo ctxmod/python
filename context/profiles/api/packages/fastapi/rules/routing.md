@@ -8,9 +8,9 @@ Define all route handlers as `async def`. Group endpoints into `APIRouter` insta
 
 Async handlers prevent blocking the event loop during I/O operations (database queries, external API calls), which is the primary bottleneck in API applications. Consistent resource naming and HTTP method mapping produce predictable APIs that align with REST conventions. Typed response models generate accurate OpenAPI documentation and validate outgoing data, catching serialization errors before they reach clients. Centralized exception handlers keep the error shape uniform for the same reason response models keep the success shape uniform: a client that must learn a second schema per endpoint cannot handle failures generically.
 
-[Routing and Handler Design](../reference/routing.md)
-[FastAPI Patterns](../reference/fastapi.md)
-[Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
+- [Routing and Handler Design](../reference/routing.md)
+- [FastAPI Patterns](../reference/fastapi.md)
+- [Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
 
 ## Examples
 

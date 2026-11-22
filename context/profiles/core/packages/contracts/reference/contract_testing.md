@@ -11,7 +11,7 @@ Procedure for proving that contracts, generated output, and service behavior sta
 - pytest with the `contract` marker registered in `pyproject.toml`; conformance tests live under `tests/contract/` and carry `@pytest.mark.contract`
 - The service importable in-process
 
-[Contract-First Architecture](contracts.md)
+- [Contract-First Architecture](contracts.md)
 
 ## Validation Workflow
 
@@ -74,7 +74,7 @@ The `contract` marker lets the suite be selected by marker inside a combined run
 - The pairing rule holds: every mutating operation in the contract carries BOTH an idempotency test AND a stale-precondition test. A mutating operation missing either half of the pair is a failure of this step even when every present test passes.
 - The three idempotency levels behave as the error-handling reference specifies: a repeated Command submission returns the original semantic outcome; a redelivered Domain Event produces no repeated business effect; a retried action does not execute twice; and a stale precondition fails with the typed 409 conflict.
 
-[Error Handling and Resilience](../../errors/reference/errors.md)
+- [Error Handling and Resilience](../../errors/reference/errors.md)
 
 ### 5. Verify Generated Mocks Are Current
 
@@ -83,7 +83,7 @@ Mocks and fixtures of contract surfaces are generation targets under the same dr
 - Where a mock or fixture generation target exists, add it to the drift-check recipe; committed mocks must equal fresh regeneration.
 - The guard is absolute: no hand-shaped payload object exists outside fixtures generated from the contracts. A hand-shaped mock drifting from the contract is the failure mode this step exists to catch — generated mocks stay current, or the check fails.
 
-[Testing Philosophy](../../testing/reference/testing.md)
+- [Testing Philosophy](../../testing/reference/testing.md)
 
 ## Thresholds
 
@@ -104,5 +104,5 @@ Mocks and fixtures of contract surfaces are generation targets under the same dr
 
 **The suite selects nothing**: register the `contract` marker in `[tool.pytest.ini_options]` markers — under `--strict-markers`, an unregistered marker errors instead of silently selecting no tests.
 
-[Python Toolchain](../../toolchain/reference/tooling.md)
-[Project Setup](../../toolchain/reference/project_setup.md)
+- [Python Toolchain](../../toolchain/reference/tooling.md)
+- [Project Setup](../../toolchain/reference/project_setup.md)

@@ -8,7 +8,7 @@ Use PostgreSQL with `SELECT ... FOR UPDATE SKIP LOCKED` for job queue dequeuing.
 
 In-memory job state vanishes on worker crashes, leaving pipelines in an unrecoverable position. PostgreSQL row-level locking with SKIP LOCKED provides atomic job claiming without distributed lock infrastructure. Explicit state machines prevent invalid transitions (such as moving directly from `pending` to `completed`) that produce inconsistent data. Persisting state before execution guarantees that crashes leave a recoverable record rather than silent data loss. Optimistic locking through a version column eliminates distributed locks while preventing concurrent workers from overwriting each other's progress.
 
-[Job Repositories and State Machines](../reference/jobs.md)
+- [Job Repositories and State Machines](../reference/jobs.md)
 
 ## Examples
 

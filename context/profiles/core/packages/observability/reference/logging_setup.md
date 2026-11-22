@@ -84,7 +84,7 @@ def _add_otel_context(logger, method_name, event_dict):
     return event_dict
 ```
 
-[Structured Logging](logging.md)
+- [Structured Logging](logging.md)
 
 ### 3. Create Request Context Middleware
 
@@ -128,7 +128,7 @@ configure_logging(
 )
 ```
 
-[Configuration Setup](../../configuration/reference/configuration_setup.md)
+- [Configuration Setup](../../configuration/reference/configuration_setup.md)
 
 ### 5. Use Throughout the Codebase
 

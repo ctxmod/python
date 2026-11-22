@@ -24,8 +24,8 @@ Use uv for package management, basedpyright for type checking, ruff for linting 
 
 The Astral-based toolchain (uv, ruff) delivers 10-100x performance improvements over legacy alternatives (pip, Poetry, Flake8, Black). A single `pyproject.toml` configures all tools, eliminating fragmented configuration across setup.cfg, tox.ini, and .flake8 files. This consolidation reduces onboarding friction and CI pipeline time while maintaining production stability. One dev surface matters for the same reason one manifest does: a hand-mirrored second list drifts silently, and the drift is invisible until a tool runs at a different revision in CI than on a developer machine.
 
-[Python Toolchain](../reference/tooling.md)
-[Python Packaging](../reference/packaging.md)
+- [Python Toolchain](../reference/tooling.md)
+- [Python Packaging](../reference/packaging.md)
 
 ## Examples
 

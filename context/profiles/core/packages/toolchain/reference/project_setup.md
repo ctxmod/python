@@ -57,7 +57,7 @@ Configure the package source location in `pyproject.toml`:
 where = ["src"]
 ```
 
-[Project Structure](../../structure/reference/structure.md)
+- [Project Structure](../../structure/reference/structure.md)
 
 ### 3. Configure pyproject.toml
 
@@ -96,7 +96,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 ```
 
-[Python Toolchain](tooling.md)
+- [Python Toolchain](tooling.md)
 
 ### 4. Create the Justfile
 
@@ -130,7 +130,7 @@ just ci
 
 All three checks (lint, typecheck, test) should pass on an empty project. If basedpyright reports errors from third-party stubs, add per-module overrides rather than weakening strict mode.
 
-[Type Checking Validation](../../typing/reference/type_checking.md)
+- [Type Checking Validation](../../typing/reference/type_checking.md)
 
 ### 6. Configure Version Control
 
@@ -150,7 +150,7 @@ contracts/
 gen/                      # generated output; committed, never hand-edited
 ```
 
-[Contract-First Architecture](../../contracts/reference/contracts.md)
+- [Contract-First Architecture](../../contracts/reference/contracts.md)
 
 ### 8. Pin the Codegen Tools in the Lockfile
 
@@ -194,7 +194,7 @@ contract-drift-check:
 
 Repeat the regenerate-and-compare pair for every generation target — the Pydantic DTOs and the Domain Event bindings as well as the bundle. Any difference is a build failure, not a warning: a contributor who edits generated output by hand, or forgets to regenerate after a contract change, is caught here.
 
-[Python Toolchain](tooling.md)
+- [Python Toolchain](tooling.md)
 
 ## Decision Support
 

@@ -28,7 +28,7 @@ Choose placement based on visibility and scope:
 
 Private modules use the underscore prefix convention. Group related private modules under `_internal/` when there are three or more.
 
-[Project Structure](structure.md)
+- [Project Structure](structure.md)
 
 ### 2. Create the Module File
 
@@ -95,7 +95,7 @@ class Client:
 
 Prefer `dataclass(frozen=True)` or Pydantic `BaseModel` for value types. Use regular classes for stateful objects with behavior.
 
-[Type Safety](../../typing/reference/type_safety.md)
+- [Type Safety](../../typing/reference/type_safety.md)
 
 ### 5. Define Error Types
 

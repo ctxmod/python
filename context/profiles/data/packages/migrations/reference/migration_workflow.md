@@ -34,7 +34,7 @@ This creates `alembic.ini` and `alembic/env.py`. Configure `env.py` for async op
 
 Set `target_metadata = Base.metadata` after importing all model modules explicitly. Missing imports cause autogenerate to skip tables.
 
-[Database Migration Management](migrations.md)
+- [Database Migration Management](migrations.md)
 
 ### 2. Configure the Database URL
 
@@ -166,7 +166,7 @@ If issues arise after migration, revert application code first, then run `alembi
 
 For breaking schema changes, split into separate migration files across multiple releases: first add the nullable column (brief lock), then backfill data in batches (no lock), then set NOT NULL (brief lock). This expand-contract pattern minimizes lock duration.
 
-[Database API Principles](../../database/reference/database_principles.md)
+- [Database API Principles](../../database/reference/database_principles.md)
 
 ## Decision Support
 

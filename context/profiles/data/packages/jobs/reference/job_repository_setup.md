@@ -53,7 +53,7 @@ class Job(Base):
 
 Create a `JobHistory` table alongside for audit trail tracking (job_id, from_state, to_state, trigger, metadata, timestamp).
 
-[Job Repositories and State Machines](jobs.md)
+- [Job Repositories and State Machines](jobs.md)
 
 ### 2. Implement the State Machine
 
@@ -156,7 +156,7 @@ class CheckpointingProcessor:
 
 This pattern matches the streaming checkpoint structure, enabling jobs to resume from the last saved position after failures.
 
-[Streaming and Checkpointing](../../processing/reference/streaming.md)
+- [Streaming and Checkpointing](../../processing/reference/streaming.md)
 
 ### 5. Implement Worker with Concurrency Control
 
@@ -196,7 +196,7 @@ Use PgQueuer for straightforward job queues. Build custom when the job lifecycle
 
 **Checkpoint data too large**: Move large checkpoint state (processed ID sets exceeding 100K entries) to a separate table indexed by job ID. Keep only summary metrics in the job payload.
 
-[Migration Workflow](../../migrations/reference/migration_workflow.md)
+- [Migration Workflow](../../migrations/reference/migration_workflow.md)
 
 ## Related
 

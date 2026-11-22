@@ -8,8 +8,8 @@ Use SQLAlchemy 2.0 with `AsyncSession` for all database access. Provide sessions
 
 SQLAlchemy 2.0's async API avoids blocking the event loop during database operations, matching FastAPI's async-first design. Session-per-request via `Depends` ensures each request gets an isolated transaction that commits on success or rolls back on failure, preventing partial writes and connection leaks. The repository pattern keeps SQL queries in dedicated classes, making business logic testable with mock repositories rather than requiring a live database.
 
-[Database Integration](../reference/database_integration.md)
-[FastAPI Patterns](../../fastapi/reference/fastapi.md)
+- [Database Integration](../reference/database_integration.md)
+- [FastAPI Patterns](../../fastapi/reference/fastapi.md)
 
 ## Examples
 

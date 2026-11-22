@@ -8,8 +8,8 @@ Use PyTorch for all deep learning work. Define models as `nn.Module` subclasses 
 
 PyTorch's eager execution model produces debuggable training code where standard Python tooling (debuggers, profilers, type checkers) works without special instrumentation. Typed `forward` signatures enable basedpyright to validate tensor shapes at the module boundary, catching dimension mismatches before runtime. Centralized device management prevents silent CPU/GPU misalignment that causes performance degradation or runtime errors in multi-device setups.
 
-[PyTorch Patterns](../reference/pytorch.md)
-[Type Safety](../../../../core/packages/typing/reference/type_safety.md)
+- [PyTorch Patterns](../reference/pytorch.md)
+- [Type Safety](../../../../core/packages/typing/reference/type_safety.md)
 
 ## Examples
 

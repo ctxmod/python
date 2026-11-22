@@ -43,7 +43,7 @@ class ProcessedEvent(BaseModel):
 
 Define models before writing transformation logic. Models serve as executable documentation of data contracts between pipeline stages.
 
-[Data Validation](../../validation/reference/validation.md)
+- [Data Validation](../../validation/reference/validation.md)
 
 ### 2. Choose Processing Pattern
 
@@ -58,7 +58,7 @@ Select the processing approach based on data volume and transformation complexit
 
 For most pipelines, start with Polars lazy evaluation. Switch to generators when per-record Python logic is unavoidable. Use hybrid approaches when pipelines combine record-level validation with tabular aggregation.
 
-[Data Processing](processing.md)
+- [Data Processing](processing.md)
 
 ### 3. Implement Extraction
 
@@ -115,7 +115,7 @@ def write_parquet(df: pl.DataFrame, output: Path) -> None:
 
 For pipelines running longer than 5 minutes, add checkpointing at stage boundaries or regular intervals. Create a dataclass holding step counter and records processed, with `save()` using atomic writes (temp file + rename) and a `load()` classmethod for resume. Use `tqdm` for CLI progress bars and structured logging for headless services.
 
-[Streaming and Checkpointing](streaming.md)
+- [Streaming and Checkpointing](streaming.md)
 
 ### 7. Create Entry Point
 

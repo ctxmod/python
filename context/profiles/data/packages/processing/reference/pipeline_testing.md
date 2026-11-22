@@ -45,7 +45,7 @@ def empty_events() -> pl.DataFrame:
 
 Use typed fixtures with explicit schemas. Avoid loading test data from external files unless the file format itself is under test.
 
-[Testing Philosophy](../../../../core/packages/testing/reference/testing.md)
+- [Testing Philosophy](../../../../core/packages/testing/reference/testing.md)
 
 ### 2. Test Individual Transformations (Unit)
 
@@ -123,7 +123,7 @@ def test_transformation_preserves_row_count(values: list[float]) -> None:
 
 Focus on invariants: row count preservation, sum conservation, ordering stability, no-null introduction. Use `@settings(max_examples=100)` for CI and higher values for nightly runs.
 
-[Data Validation](../../validation/reference/validation.md)
+- [Data Validation](../../validation/reference/validation.md)
 
 ### 6. Test Data Quality and Checkpointing
 

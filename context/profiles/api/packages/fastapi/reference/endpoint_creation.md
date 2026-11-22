@@ -39,7 +39,7 @@ class ItemResponse(BaseModel):
 
 Enable `from_attributes=True` on response models for direct conversion from SQLAlchemy model instances.
 
-[Request and Response Validation](../../validation/reference/validation.md)
+- [Request and Response Validation](../../validation/reference/validation.md)
 
 ### 2. Create or Extend the Router Module
 
@@ -61,7 +61,7 @@ async def create_item(
 
 Register new routers in `app/main.py` with `app.include_router(items.router)`.
 
-[Routing and Handler Design](routing.md)
+- [Routing and Handler Design](routing.md)
 
 ### 3. Implement the Service Method
 
@@ -93,7 +93,7 @@ async def get_item_service(
     return ItemService(ItemRepository(session))
 ```
 
-[FastAPI Patterns](fastapi.md)
+- [FastAPI Patterns](fastapi.md)
 
 ### 5. Add Error Handling
 
@@ -165,7 +165,7 @@ uv run uvicorn app.main:app --reload
 
 **Dependency not found in tests**: Use `app.dependency_overrides` to replace dependencies with test doubles. Clear overrides in fixture teardown.
 
-[API Testing](../../testing/reference/api_testing.md)
+- [API Testing](../../testing/reference/api_testing.md)
 
 ## Related
 

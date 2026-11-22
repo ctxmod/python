@@ -52,7 +52,7 @@ Store checkpoint data inside the job's JSONB `payload` under a `checkpoint` key.
 
 On job resume, load the checkpoint from the payload and skip already-processed items. This avoids separate checkpoint storage while maintaining compatibility with the streaming checkpoint pattern.
 
-[Streaming and Checkpointing](../../processing/reference/streaming.md)
+- [Streaming and Checkpointing](../../processing/reference/streaming.md)
 
 ### Checkpoint Frequency Guidelines
 
@@ -82,7 +82,7 @@ Job-level idempotency is one application of a three-level model this profile doe
 
 Read the base profile's reference for the rules; this table exists only so the job vocabulary and the application vocabulary are recognizably the same thing.
 
-[Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
+- [Error Handling and Resilience](../../../../core/packages/errors/reference/errors.md)
 
 ## Job Dependencies and DAGs
 

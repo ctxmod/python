@@ -8,7 +8,7 @@ Use Polars as the primary DataFrame library. Prefer lazy evaluation (`LazyFrame`
 
 Polars executes queries 5-30x faster than Pandas through Rust-backed columnar processing, automatic parallelization, and query plan optimization. Lazy evaluation enables Polars to reorder, prune, and parallelize operations before execution begins. Eager computation on large datasets risks unnecessary memory allocation and redundant passes over data. Declarative chaining produces readable transformation pipelines that the query optimizer can improve without manual tuning.
 
-[Data Processing](../reference/processing.md)
+- [Data Processing](../reference/processing.md)
 
 ## Examples
 

@@ -8,7 +8,7 @@ Long-running data pipelines require streaming patterns with backpressure control
 
 Unbounded queues and eager loading cause memory exhaustion on large datasets. Backpressure through bounded queues prevents producers from overwhelming consumers. Generator-based pipelines process data with constant memory regardless of input size. Checkpointing enables recovery from crashes without reprocessing completed work, reducing wasted compute in pipelines that run for hours. Atomic writes (write to temp file, then rename) prevent checkpoint corruption from partial writes during failures.
 
-[Streaming and Checkpointing](../reference/streaming.md)
+- [Streaming and Checkpointing](../reference/streaming.md)
 
 ## Examples
 

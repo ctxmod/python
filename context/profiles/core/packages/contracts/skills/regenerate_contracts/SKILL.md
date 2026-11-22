@@ -41,14 +41,14 @@ If a needed change cannot be expressed in the contract at all, that is a contrac
 
 ### Generated-code authority and the drift semantics
 
-[Contract-First Architecture](../../reference/contracts.md) (required reading)
+- [Contract-First Architecture](../../reference/contracts.md) (required reading)
 
 ### The contract gate, step by step
 
-[Contract Testing Validation](../../reference/contract_testing.md) (required reading)
+- [Contract Testing Validation](../../reference/contract_testing.md) (required reading)
 
 ### Toolchain pinning and recipes
 
-[Python Toolchain](../../../toolchain/reference/tooling.md)
-[Project Setup](../../../toolchain/reference/project_setup.md)
-[Python Packaging](../../../toolchain/reference/packaging.md)
+- [Python Toolchain](../../../toolchain/reference/tooling.md)
+- [Project Setup](../../../toolchain/reference/project_setup.md)
+- [Python Packaging](../../../toolchain/reference/packaging.md)
