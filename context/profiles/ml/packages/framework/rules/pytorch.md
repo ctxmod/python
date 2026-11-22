@@ -42,7 +42,7 @@ class Classifier(nn.Module):
 
 ## Exceptions
 
-Research prototyping in notebooks may relax type annotations on intermediate tensor operations. Projects requiring ONNX export for production inference may use `torch.jit.script` with its own type constraints. Complex binary dependencies (CUDA, cuDNN) may require Pixi alongside uv for environment management.
+Research prototyping in notebooks may relax type annotations on intermediate tensor operations. Projects requiring ONNX export for production inference use `torch.onnx.export`, whose default exporter is `torch.export`-based in current PyTorch; TorchScript (`torch.jit.script`) is deprecated and is not a new target. Complex binary dependencies (CUDA, cuDNN) may require Pixi alongside uv for environment management.
 
 ## Tooling
 

@@ -76,7 +76,7 @@ def train_with_tracking(cfg: DictConfig) -> float:
 | Best model checkpoint | Training end | `mlflow.log_artifact()` |
 | Configuration file | Run start | `mlflow.log_artifact()` |
 
-Use MLflow Model Registry to version models through lifecycle stages (Staging, Production). This provides an audit trail from training run to deployed model and enables rollback.
+Use the MLflow Model Registry to version models, and mark deployment state with **aliases** (`champion`, `challenger`) and tags rather than the fixed Staging/Production stages, which MLflow deprecated from 2.9 in favor of aliases. A deployment loads `models:/<name>@champion`; promotion and rollback are an alias reassignment (`MlflowClient().set_registered_model_alias(name, "champion", version)`), which keeps the audit trail from training run to deployed model without changing the URI consumers load.
 
 ## Reproducibility
 
@@ -130,3 +130,8 @@ Hydra configuration management follows Meta AI's internal ML workflow patterns a
 - [PyTorch Patterns](../../framework/reference/pytorch.md)
 - [Training, Checkpointing, and Resumption](../../training/reference/training.md)
 - [Project Structure](../../../../core/packages/structure/reference/structure.md)
+
+## Sources
+
+- https://mlflow.org/docs/latest/ml/model-registry/ — aliases, tags, `models:/<name>@<alias>` URIs, MLflow 3.x (accessed 2026-11-22)
+- https://github.com/mlflow/mlflow/issues/10336 — model registry stages deprecated from 2.9 in favor of aliases (accessed 2026-11-22)

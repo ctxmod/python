@@ -45,4 +45,4 @@ Inference-only scripts do not require checkpointing. Fine-tuning runs shorter th
 
 ## Tooling
 
-Use `torch.save` and `torch.load` for checkpoint serialization. Configure checkpoint intervals through Hydra configuration. Monitor training progress with MLflow metric logging and tqdm progress bars.
+Use `torch.save` and `torch.load` for checkpoint serialization, saving state dicts and primitives so checkpoints load under the default `torch.load(..., weights_only=True)`; never pass `weights_only=False` for a file you did not produce. Configure checkpoint intervals through Hydra configuration. Monitor training progress with MLflow metric logging and tqdm progress bars.
