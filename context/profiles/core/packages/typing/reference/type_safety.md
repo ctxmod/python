@@ -22,24 +22,28 @@ Static checking runs on every commit in CI with zero tolerance for errors. Bound
 
 ## Strict Mode Configuration
 
-basedpyright strict mode enables all type checking diagnostics. Configure it in `pyproject.toml`:
+basedpyright strict mode raises the strict diagnostic set to errors. Configure it in `pyproject.toml`:
 
 ```toml
 [tool.basedpyright]
-strict = true
+typeCheckingMode = "strict"
 venvPath = "."
 ```
 
-Strict mode disallows untyped function definitions, warns on `Any` return types, and enforces strict optional checking. For codebases with untyped third-party dependencies, use per-module overrides rather than weakening the global mode:
+`typeCheckingMode` takes `"off"`, `"basic"`, `"standard"`, `"strict"`, `"recommended"` (basedpyright's default) or `"all"`. The pyright key `strict` is a list of paths forced to strict mode, not a boolean: `strict = true` is rejected and the run silently uses the default mode, which reports most strict findings as warnings.
+
+Strict mode disallows untyped function definitions, reports unknown and `Any`-tainted types, and enforces strict optional checking. For code that cannot meet strict yet — a legacy tree, a wrapper around an untyped library — relax specific rules for that path with `executionEnvironments` rather than weakening the global mode (Pyright has no mypy-style per-module `overrides` table; basedpyright reports it as an unrecognized setting):
 
 ```toml
 [tool.basedpyright]
-strict = true
-
-[[tool.basedpyright.overrides]]
-module = ["pandas.*", "scipy.*"]
-reportMissingTypeStubs = false
+typeCheckingMode = "strict"
+executionEnvironments = [
+  { root = "src/project_name/legacy", reportUnknownParameterType = "warning", reportMissingParameterType = "warning" },
+  { root = "src" },
+]
 ```
+
+Missing third-party stubs are a dependency question first: install the published stubs package (`types-*`, `pandas-stubs`) as a development dependency before relaxing anything.
 
 ### Adoption Strategy
 
@@ -49,7 +53,7 @@ reportMissingTypeStubs = false
 | 2 | Critical existing modules | Add annotations, resolve errors |
 | 3 | Full codebase | Strict mode globally, CI enforcement |
 
-New projects start at Phase 3. Legacy codebases progress incrementally. Limit `# type: ignore` comments to genuine edge cases and always include an explanation.
+New projects start at Phase 3. Legacy codebases progress incrementally. Limit suppression comments to genuine edge cases, name the rule (`# pyright: ignore[reportUnknownMemberType]`), and always include an explanation; the type-checking reference owns the suppression syntax ([Type Checking Validation](type_checking.md)).
 
 ## Protocol-Based Design
 
@@ -144,7 +148,15 @@ class Repository[T]:
         return self._items[index] if index < len(self._items) else None
 ```
 
-For Python <3.12, use explicit `TypeVar("T")` with `Generic[T]`. Bounded type variables (`TypeVar("T", bound=SomeBase)`) restrict generics to specific type hierarchies when the generic code calls methods defined on the bound.
+Bounds and aliases use the same syntax: `class Repository[T: Entity]` restricts `T` to an `Entity` hierarchy when the generic code calls methods defined on the bound, and `type UserId = int` (PEP 695) declares an alias the checker treats as a distinct name. For a `requires-python` below 3.12, use explicit `TypeVar("T", bound=Entity)` with `Generic[T]`.
+
+## Annotation Evaluation (Python 3.14+)
+
+From Python 3.14, annotations are evaluated lazily by default (PEP 649/749): forward references to names defined later in the module work without quotes, and `annotationlib` reads annotations in value, forward-ref, or string form. Consequences:
+
+- On a 3.14+ floor, drop `from __future__ import annotations`; it is redundant, and PEP 749 schedules its eventual deprecation. Keep it only while `requires-python` admits 3.13 or older and the module relies on unquoted forward references.
+- Runtime-introspecting libraries — Pydantic models, FastAPI signatures, SQLAlchemy `Mapped[...]` columns, dataclass-based validators — evaluate annotations when the class or route is built. Every name such an annotation uses must be importable at runtime: an import placed under `if TYPE_CHECKING:` is invisible to them under either evaluation model, and fails at class construction or first request instead of in the checker.
+
 
 ## Rule Companion: Rationale, Examples, Exceptions, and Tooling
 
@@ -185,11 +197,11 @@ def create_user(repo, request):  # No type hints
 
 ### Exceptions
 
-Dynamically generated code (e.g., ORM model metaclasses) may use targeted `# type: ignore` comments with explanation. Third-party libraries lacking type stubs may require per-module overrides in basedpyright configuration.
+Dynamically generated code (e.g., ORM model metaclasses) may use rule-named `# pyright: ignore[<rule>]` comments with explanation. Third-party libraries lacking type stubs may require path-scoped `executionEnvironments` relaxations in basedpyright configuration.
 
 ### Tooling
 
-Run `basedpyright` in CI with strict mode. Configure per-module overrides for untyped dependencies rather than disabling strict mode globally.
+Run `basedpyright` in CI with `typeCheckingMode = "strict"`. Configure path-scoped `executionEnvironments` relaxations for untyped dependencies rather than disabling strict mode globally.
 
 ## Evidence
 
@@ -201,3 +213,10 @@ Research on Python type safety (2024-2026) confirms 70-80% reduction in runtime 
 - [Project Structure](../../structure/reference/structure.md)
 - [Testing Philosophy](../../testing/reference/testing.md)
 - [Contract-First Architecture](../../contracts/reference/contracts.md)
+
+## Sources
+
+- https://docs.basedpyright.com/latest/configuration/config-files/ — `typeCheckingMode` values, `strict` as a path list, `executionEnvironments` diagnostic overrides, basedpyright 1.40 (accessed 2026-11-22; behavior re-probed with basedpyright 1.40.2)
+- https://peps.python.org/pep-0649/ and https://peps.python.org/pep-0749/ — deferred evaluation of annotations, Final, Python 3.14 (accessed 2026-11-22)
+- https://docs.python.org/3.14/library/annotationlib.html — annotation formats (accessed 2026-11-22)
+- https://peps.python.org/pep-0695/ — type parameter syntax and `type` aliases, Python 3.12 (accessed 2026-11-22)
