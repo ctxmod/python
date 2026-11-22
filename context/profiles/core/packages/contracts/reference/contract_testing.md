@@ -20,18 +20,18 @@ Procedure for proving that contracts, generated output, and service behavior sta
 Validate the modular contract source and resolve it into the single reviewed bundle:
 
 ```bash
-uv run redocly lint contracts/api/openapi.yaml
-uv run buf lint contracts/domain-events
-uv run redocly bundle contracts/api/openapi.yaml --output gen/api/bundle/openapi.yaml
+npx --no-install redocly lint contracts/api/openapi.yaml
+npx --no-install buf lint contracts/domain-events
+npx --no-install redocly bundle contracts/api/openapi.yaml --output gen/api/bundle/openapi.yaml
 ```
 
 For the asynchronous contracts, run the breaking-change check against the previous committed revision:
 
 ```bash
-uv run buf breaking contracts/domain-events --against <baseline>
+npx --no-install buf breaking contracts/domain-events --against <baseline>
 ```
 
-A lint or breaking-change finding is a contract failure: fix the contract source, never the check's configuration. The toolchain reference owns tool selection and pinning; if a tool is not yet a lockfile dependency, pin it there first.
+A lint or breaking-change finding is a contract failure: fix the contract source, never the check's configuration. The toolchain reference owns tool selection and pinning; if a tool is not yet pinned in its ecosystem's lockfile (`uv.lock` for datamodel-code-generator, the Node lock for Redocly CLI and buf), pin it there first.
 
 ### 2. Regenerate Every Output
 
@@ -41,7 +41,7 @@ Regenerate all derived artifacts from the freshly bundled contract — the bundl
 just contract-generate
 ```
 
-The recipes invoke the pinned tools through `uv run`, so the lockfile's exact versions execute.
+The recipes invoke the pinned tools through lock-aware runners (`uv run`, `npx --no-install`), so each lockfile's exact versions execute.
 
 ### 3. Diff-Check for Drift
 
@@ -100,9 +100,9 @@ Mocks and fixtures of contract surfaces are generation targets under the same dr
 
 **Conformance fails while generated types line up**: generated types can agree while behavior diverges — the conformance suite, not the type check, is the authority. Extend the suite to the affected response shapes.
 
-**Bundle differs on an untouched contract**: the toolchain version moved. Re-pin the lockfile; the lockfile, not the local environment, selects versions.
+**Bundle differs on an untouched contract**: the toolchain version moved. Re-pin the lockfile that owns the tool; the lockfile, not the local environment, selects versions.
 
-**The suite selects nothing**: register the `contract` marker in `[tool.pytest.ini_options]` markers — under `--strict-markers`, an unregistered marker errors instead of silently selecting no tests.
+**The suite selects nothing**: register the `contract` marker in the pytest `markers` list (`[tool.pytest]` on pytest 9+, `[tool.pytest.ini_options]` before it) — under `strict = true` or `--strict-markers`, an unregistered marker errors instead of silently selecting no tests.
 
 - [Python Toolchain](../../toolchain/reference/tooling.md)
 - [Project Setup](../../toolchain/reference/project_setup.md)
