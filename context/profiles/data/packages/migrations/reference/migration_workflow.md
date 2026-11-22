@@ -16,7 +16,7 @@ Gather before starting:
 Install required dependencies:
 
 ```bash
-uv add alembic sqlalchemy asyncpg
+uv add alembic "sqlalchemy[asyncio]" asyncpg   # [asyncio] carries greenlet from SQLAlchemy 2.1
 uv add --dev aiosqlite pytest-asyncio
 ```
 
@@ -27,10 +27,10 @@ uv add --dev aiosqlite pytest-asyncio
 Create the Alembic configuration at the project root:
 
 ```bash
-uv run alembic init alembic
+uv run alembic init -t async alembic
 ```
 
-This creates `alembic.ini` and `alembic/env.py`. Configure `env.py` for async operation by replacing the default `run_migrations_online` with an async runner that uses `create_async_engine` and `run_sync`.
+This creates `alembic.ini` and an async `alembic/env.py` whose online runner already uses an async engine and `connection.run_sync`; there is no need to hand-replace the generic template's runner. `-t pyproject_async` is the alternative when the project keeps Alembic settings in `[tool.alembic]` of `pyproject.toml` (pyproject configuration arrived in Alembic 1.16; `alembic list_templates` shows `generic`, `async`, `pyproject`, `pyproject_async` and `multidb` on 1.20.1), with `alembic.ini` reduced to URL and logging.
 
 Set `target_metadata = Base.metadata` after importing all model modules explicitly. Missing imports cause autogenerate to skip tables.
 
@@ -57,6 +57,7 @@ For monorepo projects where multiple packages contribute tables, configure `vers
 ```ini
 [alembic]
 script_location = alembic
+path_separator = ;   # without it, the semicolon list collapses into one bogus directory
 version_locations = alembic/versions;packages/core/migrations;packages/jobs/migrations;packages/analytics/migrations
 ```
 
@@ -203,3 +204,7 @@ For breaking schema changes, split into separate migration files across multiple
 ## Related
 
 - [Job Repository Setup](../../jobs/reference/job_repository_setup.md)
+
+## Sources
+
+- https://alembic.sqlalchemy.org/en/latest/tutorial.html — `alembic init -t async` / `-t pyproject` templates and `path_separator` (accessed 2026-11-22)
