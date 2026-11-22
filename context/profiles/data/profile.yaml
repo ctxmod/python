@@ -1,0 +1,16 @@
+extends:
+  - github.com/ctxmod/python/context/profiles/core
+title: Python — Data
+description: >-
+  Python data science, analysis, and pipeline work, extending the Python
+  core with data-specific tooling and patterns: durable job state,
+  migrations, dataframe processing, and streaming. Its high-throughput
+  deserialization allowance specializes the boundary-validation default
+  rather than replacing it.
+packages:
+  add:
+    - jobs
+    - migrations
+    - processing
+    - validation
+    - database

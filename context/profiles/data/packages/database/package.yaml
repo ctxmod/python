@@ -1,0 +1,3 @@
+description: >-
+  Engine-neutral database principles: connection management, query patterns, transaction design, resilience, schema evolution, and multi-database compatibility.
+binds_to_depth: main...
