@@ -2,7 +2,7 @@
 
 Database integration workflow covering async engine setup, session management, repository creation, Alembic migrations, and connection pooling.
 
-Procedure for integrating SQLAlchemy 2.0 async with a FastAPI application. The workflow establishes an async engine, configures session-per-request through dependency injection, creates the repository layer, and sets up Alembic for schema migrations. The result is a database layer where each request operates within an isolated transaction.
+Procedure for integrating SQLAlchemy 2.x async with a FastAPI application. The workflow establishes an async engine, configures session-per-request through dependency injection, creates the repository layer, and sets up Alembic for schema migrations. The result is a database layer where each request operates within an isolated transaction.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ Gather before starting:
 Install required dependencies:
 
 ```bash
-uv add sqlalchemy asyncpg alembic
+uv add "sqlalchemy[asyncio]" asyncpg alembic   # [asyncio] carries greenlet from SQLAlchemy 2.1
 uv add --dev aiosqlite   # For test database (SQLite async)
 ```
 
@@ -108,13 +108,13 @@ Use `flush()` instead of `commit()` in repositories. The session dependency hand
 
 ### 5. Set Up Alembic Migrations
 
-Initialize Alembic and configure it for async operation:
+Initialize Alembic from its async template:
 
 ```bash
-uv run alembic init alembic
+uv run alembic init -t async alembic
 ```
 
-Update `alembic/env.py` to use the async migration runner. Set `target_metadata = Base.metadata` and wrap `context.run_migrations()` inside `engine.connect()` with `run_sync`. Generate and apply the initial migration:
+The async template's `env.py` already wraps `context.run_migrations()` in `connection.run_sync` on an async engine; set `target_metadata = Base.metadata` and source the URL from settings rather than `alembic.ini`. Generate and apply the initial migration:
 
 ```bash
 uv run alembic revision --autogenerate -m "initial schema"
@@ -167,3 +167,8 @@ uv run pytest tests/ -v
 ## Related
 
 - [Project Setup](../../../../core/packages/toolchain/reference/project_setup.md)
+
+## Sources
+
+- https://docs.sqlalchemy.org/en/21/changelog/migration_21.html — `sqlalchemy[asyncio]` extra required for asyncio from 2.1 (accessed 2026-11-22)
+- https://alembic.sqlalchemy.org/en/latest/tutorial.html — `alembic init` templates including `async` and `pyproject` (accessed 2026-11-22)
