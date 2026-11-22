@@ -47,15 +47,13 @@ Place the router in `app/routes/{resource}.py`. If the router module already exi
 
 ```python
 # app/routes/items.py
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, status
+from app.dependencies import ItemServiceDep
 
 router = APIRouter(prefix="/items", tags=["items"])
 
-@router.post("/", response_model=ItemResponse, status_code=status.HTTP_201_CREATED)
-async def create_item(
-    payload: ItemCreate,
-    service: ItemService = Depends(get_item_service),
-) -> ItemResponse:
+@router.post("/", status_code=status.HTTP_201_CREATED)
+async def create_item(payload: ItemCreate, service: ItemServiceDep) -> ItemResponse:
     return await service.create(payload)
 ```
 
@@ -84,14 +82,18 @@ Create a dependency function that assembles the service with its repository. Fas
 
 ```python
 # app/dependencies.py
-from fastapi import Depends
-from app.database import get_session
+from typing import Annotated
 
-async def get_item_service(
-    session: AsyncSession = Depends(get_session),
-) -> ItemService:
+from fastapi import Depends
+from app.database import SessionDep  # Annotated[AsyncSession, Depends(get_session, scope="function")]
+
+async def get_item_service(session: SessionDep) -> ItemService:
     return ItemService(ItemRepository(session))
+
+ItemServiceDep = Annotated[ItemService, Depends(get_item_service)]
 ```
+
+The session dependency commits in its exit code, so it carries `scope="function"`: the commit finishes before the 201 is sent, and a failed commit surfaces as an error response rather than after a success the client already holds.
 
 - [FastAPI Patterns](fastapi.md)
 
@@ -161,6 +163,8 @@ uv run uvicorn app.main:app --reload
 
 **Circular imports between routes and dependencies**: Move dependency functions to a separate `dependencies.py` module. Avoid importing route modules from dependency modules.
 
+**Client got 2xx but the row is missing**: the session dependency commits after the response — it lacks `scope="function"` (FastAPI ≥ 0.121.0). See [FastAPI Patterns](fastapi.md).
+
 **Response model validation fails**: Verify `from_attributes=True` on response schemas when returning SQLAlchemy models. Check that all response model fields have corresponding attributes on the ORM model.
 
 **Dependency not found in tests**: Use `app.dependency_overrides` to replace dependencies with test doubles. Clear overrides in fixture teardown.
@@ -170,3 +174,8 @@ uv run uvicorn app.main:app --reload
 ## Related
 
 - [Module Creation](../../../../core/packages/structure/reference/module_creation.md)
+
+## Sources
+
+- https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/ — dependency `scope` and exit-code timing, FastAPI 0.121.0+ (accessed 2026-11-22)
+- https://fastapi.tiangolo.com/tutorial/response-model/ — return annotation as response model (accessed 2026-11-22)

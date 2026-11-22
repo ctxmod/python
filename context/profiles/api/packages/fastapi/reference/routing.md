@@ -22,14 +22,11 @@ Avoid verbs in paths (`/createItem`, `/deleteUser`). The HTTP method already com
 
 ## Async Handlers
 
-Define all route handlers as `async def`. Sync handlers (`def`) block the event loop during I/O operations, degrading throughput under concurrent load. FastAPI runs sync handlers in a thread pool, adding overhead without the benefits of native async.
+Define all route handlers as `async def` and keep every I/O call inside them awaitable. FastAPI runs a sync (`def`) handler in a bounded worker thread pool, so it does not block the event loop but caps concurrent requests at the pool size and adds thread overhead. The real hazard is the inverse: a blocking call (a sync database driver, `requests`, `time.sleep`) inside an `async def` handler stalls the event loop for every in-flight request. Offload unavoidable blocking work with `await anyio.to_thread.run_sync(...)` (or `asyncio.to_thread`).
 
 ```python
-@router.get("/{item_id}", response_model=ItemResponse)
-async def get_item(
-    item_id: int,
-    service: ItemService = Depends(get_item_service),
-) -> ItemResponse:
+@router.get("/{item_id}")
+async def get_item(item_id: int, service: ItemServiceDep) -> ItemResponse:
     item = await service.get(item_id)
     if item is None:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -157,3 +154,8 @@ RESTful conventions follow established HTTP specification (RFC 9110) and API des
 - [FastAPI Patterns](fastapi.md)
 - [Request and Response Validation](../../validation/reference/validation.md)
 - [Type Safety](../../../../core/packages/typing/reference/type_safety.md)
+
+## Sources
+
+- https://fastapi.tiangolo.com/async/ — how FastAPI runs `def` versus `async def` path operations (accessed 2026-11-22)
+- https://fastapi.tiangolo.com/tutorial/dependencies/ — `Annotated[T, Depends(...)]` declarations (accessed 2026-11-22)

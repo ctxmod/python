@@ -9,10 +9,13 @@ FastAPI applications organize around three mechanisms: dependency injection thro
 FastAPI's `Depends` system extends constructor injection with request-scoped lifecycle management. Dependencies declared in function signatures resolve automatically per request, enabling clean teardown of resources like database sessions and HTTP clients.
 
 ```python
+from collections.abc import AsyncIterator
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+async def get_session() -> AsyncIterator[AsyncSession]:
     async with async_session_factory() as session:
         try:
             yield session
@@ -21,13 +24,21 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             await session.rollback()
             raise
 
-async def get_user_service(
-    session: AsyncSession = Depends(get_session),
-) -> UserService:
+# scope="function": the commit runs before the response is sent, so a failed
+# commit becomes a 500 instead of a 2xx the client has already received.
+SessionDep = Annotated[AsyncSession, Depends(get_session, scope="function")]
+
+async def get_user_service(session: SessionDep) -> UserService:
     return UserService(UserRepository(session))
+
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 ```
 
-Dependencies that `yield` execute their cleanup code after the response completes, providing predictable resource management without manual `try/finally` blocks in handlers. Nest dependencies to build a graph: `get_user_service` depends on `get_session`, and FastAPI resolves the chain automatically.
+Declare dependencies with `Annotated[T, Depends(...)]` — FastAPI's documented preference — and name the alias once (`SessionDep`, `UserServiceDep`) so every handler reuses the same declaration and the type checker sees the real parameter type rather than a `Depends(...)` default value.
+
+**When the exit code runs.** Since FastAPI 0.121.0, `Depends(..., scope=...)` selects when a `yield` dependency's code after `yield` runs. The default for a `yield` dependency is `scope="request"`: the exit code runs **after the response has been sent**. That is right for pure cleanup (closing a client) and wrong for anything that can still fail the request — a commit, a flush, an outbox write. With the default scope, a commit that raises leaves the client holding a success response for a write that never landed (verified with FastAPI 0.165.0: default scope returned 200 while the commit raised; `scope="function"` returned 500). Use `scope="function"` for every dependency whose exit code can fail the operation, or commit inside the application service before the handler returns. A `"request"`-scoped dependency may only depend on other `"request"`-scoped dependencies; a `"function"`-scoped one may depend on either.
+
+Nest dependencies to build a graph: `get_user_service` depends on `get_session`, and FastAPI resolves the chain automatically.
 
 ### Dependency Guidelines
 
@@ -35,6 +46,8 @@ Dependencies that `yield` execute their cleanup code after the response complete
 |-----------|-----------|
 | One responsibility per dependency | Keeps the dependency graph shallow and debuggable |
 | Use `yield` for resources needing cleanup | Sessions, connections, and file handles close reliably |
+| `scope="function"` when exit code can fail the request | Commits and flushes must finish before the status code is sent |
+| Declare with `Annotated[T, Depends(...)]` aliases | One declaration per dependency; the checker sees `T`, not a default value |
 | Type-annotate dependency return values | basedpyright validates the full injection chain |
 | Avoid module-level state in dependencies | Request-scoped dependencies prevent cross-request contamination |
 | Test by calling dependency functions directly | Dependencies are plain async generators, testable without FastAPI |
@@ -53,8 +66,8 @@ from fastapi import APIRouter
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-@router.get("/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int, service: UserService = Depends(get_user_service)) -> UserResponse:
+@router.get("/{user_id}")
+async def get_user(user_id: int, service: UserServiceDep) -> UserResponse:
     return await service.get(user_id)
 
 # app/main.py
@@ -66,6 +79,8 @@ app.include_router(users.router)
 app.include_router(items.router)
 app.include_router(health.router)
 ```
+
+The return annotation is the response model: FastAPI validates, filters, and documents the response from it, so `response_model=` is needed only when the declared return type must differ from the serialized shape (for example, a handler that returns an ORM object filtered through a narrower DTO).
 
 Routers accept their own middleware, dependencies, and response classes. Apply shared authentication at the router level rather than repeating it on each endpoint:
 
@@ -109,23 +124,35 @@ This composes with router organization above: routers group endpoints by domain 
 
 ## Lifespan Events
 
-Use the `lifespan` context manager (introduced in FastAPI 0.93+) for startup and shutdown logic. This replaces the deprecated `on_event` decorators and provides type-safe resource sharing through the application state:
+Use the `lifespan` context manager (introduced in FastAPI 0.93+) for startup and shutdown logic. This replaces the deprecated `on_event` decorators:
 
 ```python
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import TypedDict
+
 from fastapi import FastAPI
 
+class AppState(TypedDict):
+    engine: AsyncEngine
+    session_factory: async_sessionmaker[AsyncSession]
+
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
-    engine = create_async_engine(settings.database_url)
-    app.state.engine = engine
-    yield
+async def lifespan(app: FastAPI) -> AsyncIterator[AppState]:
+    engine = create_async_engine(settings.database_url, pool_pre_ping=True)
+    yield {"engine": engine, "session_factory": async_sessionmaker(engine, expire_on_commit=False)}
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
 ```
 
+Yielding a mapping is the lifespan-state protocol: each request receives a shallow copy as `request.state`, so dependencies read `request.state.session_factory` instead of a module-level global, and tests that run the app's lifespan get fresh resources per app instance. Assigning to `app.state` still works but is untyped and shared mutable state.
+
 Lifespan manages database engines, connection pools, HTTP client sessions, and cache connections. Resources initialized before `yield` are available throughout the application lifetime. Cleanup after `yield` runs during shutdown.
+
+## OpenTelemetry
+
+FastAPI 0.142.0 added native OpenTelemetry support; since 0.143.0 automatic exporter setup from `OTEL_*` variables is opt-in (`FASTAPI_OTEL_AUTO_CONFIGURE=true` or `FastAPI(telemetry={"auto_configure": True})`). A service that configures its own tracer and exporter providers — the observability reference's three-layer model — needs no change; do not enable auto-configuration on top of an explicit provider setup, or two exporter pipelines run.
 
 ## Middleware
 
@@ -147,11 +174,11 @@ app.add_middleware(
 Use `BackgroundTasks` for fire-and-forget work that should not delay the response: sending emails, writing audit logs, triggering webhooks. For longer-running or failure-sensitive tasks, use a task queue (Celery, arq, or Dramatiq) instead -- background tasks share the process and have no retry mechanism.
 
 ```python
-@router.post("/users/", response_model=UserResponse)
+@router.post("/users/")
 async def create_user(
     payload: UserCreate,
     background: BackgroundTasks,
-    service: UserService = Depends(get_user_service),
+    service: UserServiceDep,
 ) -> UserResponse:
     user = await service.create(payload)
     background.add_task(send_welcome_email, user.email)
@@ -160,7 +187,7 @@ async def create_user(
 
 ## Evidence
 
-FastAPI dependency injection patterns follow the framework's official documentation and production usage at companies processing millions of requests daily. The `Depends` system has remained stable since FastAPI 0.1.0. The lifespan context manager replaced event hooks based on community feedback about resource management reliability.
+FastAPI dependency injection patterns follow the framework's official documentation and production usage at companies processing millions of requests daily. The `Depends` system has remained stable since FastAPI 0.1.0; `scope` (0.121.0) is the one change to when `yield` dependencies exit. The lifespan context manager replaced event hooks based on community feedback about resource management reliability. FastAPI 0.162.6 dropped Python 3.10 and 0.128.0 dropped `pydantic.v1`; the 0.14x–0.16x series (2026-10) tightened request-parameter semantics — explicit JSON `null` versus an omitted value (0.151.0), defaults no longer validated unless `validate_default=True` (0.148.0), `extra` model config applied per parameter location (0.160.0) — so read the release notes before bumping across those versions.
 
 ## Related
 
@@ -168,3 +195,10 @@ FastAPI dependency injection patterns follow the framework's official documentat
 - [Project Structure](../../../../core/packages/structure/reference/structure.md)
 - [Routing and Handler Design](routing.md)
 - [Request and Response Validation](../../validation/reference/validation.md)
+
+## Sources
+
+- https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/ — `scope="function"` versus the default `"request"` exit timing; Annotated preference (accessed 2026-11-22; timing probed with FastAPI 0.165.0)
+- https://fastapi.tiangolo.com/release-notes/ — 0.121.0 dependency scopes, 0.128.0 `pydantic.v1` removal, 0.142.0/0.143.0 OpenTelemetry, 0.148.0–0.162.6 parameter-semantics changes and Python 3.10 drop (accessed 2026-11-22)
+- https://fastapi.tiangolo.com/tutorial/response-model/ — return annotation as the response model (accessed 2026-11-22)
+- https://starlette.dev/lifespan/ — lifespan state yielded as a mapping and copied into `request.state` (accessed 2026-11-22)
