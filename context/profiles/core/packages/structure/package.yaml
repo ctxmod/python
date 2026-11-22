@@ -1,0 +1,3 @@
+description: >-
+  Project structure: src layout, the contract-first top level of multi-deployable repositories, and module creation.
+binds_to_depth: main...

@@ -1,6 +1,16 @@
 title: Python Core
 description: >-
-  Base profile for Python development: the contract-first authoring
-  tier with tooling, structure, typing, contracts, errors,
-  configuration, observability, and testing standards. Every other
-  python profile extends this one.
+  Base profile for Python development with tooling, testing, and
+  packaging standards: the contract-first authoring tier that every
+  other python profile specializes rather than restates.
+packages:
+  defaults:
+    - architecture
+    - toolchain
+    - structure
+    - typing
+    - contracts
+    - errors
+    - configuration
+    - observability
+    - testing

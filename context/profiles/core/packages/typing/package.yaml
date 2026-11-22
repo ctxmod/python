@@ -1,0 +1,3 @@
+description: >-
+  Strict static typing, model boundaries and mapping between model classes, and type-checking procedure.
+binds_to_depth: main...

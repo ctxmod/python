@@ -1,0 +1,14 @@
+extends:
+  - github.com/ctxmod/python/context/profiles/core
+title: Python — Machine Learning
+description: >-
+  Python machine learning development, extending the Python core with
+  ML-specific conventions and tooling: experiment configuration,
+  training-loop coordination, checkpoint discipline, the PyTorch
+  framework, and model evaluation.
+packages:
+  add:
+    - experiments
+    - training
+    - framework
+    - evaluation

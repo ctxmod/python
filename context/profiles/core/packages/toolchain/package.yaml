@@ -1,0 +1,3 @@
+description: >-
+  The uv, basedpyright, ruff and pytest toolchain configured through pyproject.toml, packaging and distribution, and new-project setup.
+binds_to_depth: main...

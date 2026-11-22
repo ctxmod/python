@@ -1,0 +1,12 @@
+extends:
+  - github.com/ctxmod/python/context/profiles/core
+title: Python — Rented Compute
+description: >-
+  Operating rented GPU/CPU compute sessions with the colab CLI and
+  runpodctl: session discipline, spend gating, and teardown
+  verification for workloads run off-workstation (bulk inference, batch
+  generation, training-shaped jobs).
+packages:
+  add:
+    - operations
+    - discipline

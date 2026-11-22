@@ -1,0 +1,3 @@
+description: >-
+  Testing philosophy and procedure: the three test tiers, fixtures, mocking, property tests, and pytest mechanics.
+binds_to_depth: main...

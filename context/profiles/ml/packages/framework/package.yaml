@@ -1,0 +1,3 @@
+description: >-
+  PyTorch framework conventions for model code.
+binds_to_depth: main...
