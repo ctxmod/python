@@ -1,0 +1,3 @@
+description: >-
+  Typed application errors with stable codes, RFC 9457 problem details, the three idempotency levels, and retry and conflict discipline.
+binds_to_depth: main...

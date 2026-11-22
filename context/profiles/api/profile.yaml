@@ -1,0 +1,14 @@
+extends:
+  - github.com/ctxmod/python/context/profiles/core
+title: Python — API
+description: >-
+  Python API development using FastAPI, extending the Python core with
+  API-specific conventions: dependency injection, router organization,
+  the thin-adapter route contract, and request/response schema
+  separation at the HTTP boundary.
+packages:
+  add:
+    - fastapi
+    - database
+    - validation
+    - testing
