@@ -26,12 +26,15 @@ Autogenerate detects table additions, column additions and removals, type change
 
 Monorepo architectures with multiple packages sharing a database benefit from Alembic's `version_locations` configuration. Each package maintains its own migration directory, and Alembic merges all locations into a single linear history.
 
-Configure `version_locations` in `alembic.ini` as a semicolon-separated list of directories:
+Configure `version_locations` as a list of directories, and declare the separator it uses:
 
 ```ini
 [alembic]
+path_separator = ;
 version_locations = %(here)s/core/migrations;%(here)s/analytics/migrations;%(here)s/jobs/migrations
 ```
+
+`path_separator` (Alembic 1.16+, superseding `version_path_separator`) is load-bearing: without it — and without the legacy key — Alembic splits `version_locations` on spaces and commas only, so a semicolon-joined list becomes **one** nonexistent directory and the extra locations are silently ignored (verified with Alembic 1.20.1). `path_separator = os` splits on `os.pathsep`, which is `:` on Linux and macOS. In a pyproject-configured project (`alembic init -t pyproject_async`, or `-t pyproject` for a sync driver), write the locations as a TOML list under `[tool.alembic]` and the separator question disappears.
 
 Each location stores migrations independently. Alembic resolves the combined revision graph across all locations. When migrations from different locations create parallel branches, generate a merge migration (`alembic merge heads -m "merge branches"`) to reunify the history.
 
@@ -141,3 +144,7 @@ Alembic's multi-location support ships natively since version 1.0. The expand-co
 - [Database API Principles](../../database/reference/database_principles.md)
 - [Job Repositories and State Machines](../../jobs/reference/jobs.md)
 - [Project Structure](../../../../core/packages/structure/reference/structure.md)
+
+## Sources
+
+- https://alembic.sqlalchemy.org/en/latest/tutorial.html — `path_separator` (1.16.0+), legacy `version_path_separator`, space/comma fallback, `pyproject` and `async` templates (accessed 2026-11-22; splitting probed with Alembic 1.20.1)

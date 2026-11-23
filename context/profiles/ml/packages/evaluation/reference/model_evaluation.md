@@ -17,7 +17,7 @@ Procedure for evaluating trained models against test datasets, comparing to base
 
 ```python
 def load_model_for_eval(checkpoint_path: Path, model: nn.Module, device: torch.device) -> nn.Module:
-    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=False)
+    checkpoint = torch.load(checkpoint_path, map_location=device, weights_only=True)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     return model
@@ -124,10 +124,14 @@ Adjust thresholds based on task and deployment target. Real-time serving require
 
 **Evaluation metrics differ from validation**: Check for data leakage. Verify test set has no overlap with training data. Ensure identical preprocessing.
 
-**Inference latency higher than expected**: Profile with `torch.profiler`. Try `torch.compile(model)` for PyTorch 2.0+. Consider quantization.
+**Inference latency higher than expected**: Profile with `torch.profiler`. Try `torch.compile(model)`. Consider quantization.
 
 **Benchmark results vary**: Increase `num_runs`. Ensure no other GPU workloads. Use `torch.cuda.synchronize()` for accurate timing.
 
 ## Related
 
 - [Training Workflow](../../training/reference/training_workflow.md)
+
+## Sources
+
+- https://docs.pytorch.org/docs/2.15/generated/torch.load.html — `weights_only=True` default, never load untrusted files with it disabled (accessed 2026-11-22)

@@ -2,7 +2,7 @@
 
 Validate all request and response data with Pydantic models in strict mode.
 
-Define Pydantic models with `ConfigDict(strict=True)` for all request bodies and response shapes. Separate request schemas from response schemas, even when fields overlap. Use `Field()` for constraints (min/max, regex, descriptions) that flow into OpenAPI documentation. Where a contract source exists, transport schemas are generated from it rather than hand-authored, and hand-authored models stay on the internal side of the boundary.
+Define Pydantic models with `ConfigDict(strict=True)` for all request bodies and response shapes, through one shared strict base class that every nested model also derives from — strict config does not propagate to nested models. Separate request schemas from response schemas, even when fields overlap. Use `Field()` for constraints (min/max, regex, descriptions) that flow into OpenAPI documentation. Where a contract source exists, transport schemas are generated from it rather than hand-authored, and hand-authored models stay on the internal side of the boundary.
 
 ## Rationale
 

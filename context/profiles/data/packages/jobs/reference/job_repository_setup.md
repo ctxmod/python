@@ -16,7 +16,7 @@ Gather before starting:
 Install required dependencies:
 
 ```bash
-uv add sqlalchemy asyncpg python-statemachine pgqueuer
+uv add "sqlalchemy[asyncio]" asyncpg python-statemachine pgqueuer   # [asyncio] carries greenlet from SQLAlchemy 2.1
 uv add --dev aiosqlite pytest-asyncio
 ```
 
@@ -201,3 +201,7 @@ Use PgQueuer for straightforward job queues. Build custom when the job lifecycle
 ## Related
 
 - [Database API Principles](../../database/reference/database_principles.md)
+
+## Sources
+
+- https://docs.sqlalchemy.org/en/21/changelog/migration_21.html — greenlet moved to the `sqlalchemy[asyncio]` extra in 2.1 (accessed 2026-11-22)

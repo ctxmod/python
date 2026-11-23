@@ -2,7 +2,7 @@
 
 Use Polars for DataFrame operations with lazy evaluation; avoid eager computation on large datasets.
 
-Use Polars as the primary DataFrame library. Prefer lazy evaluation (`LazyFrame`) over eager execution to enable query optimization. Chain transformations declaratively and call `.collect()` only when results are needed. Reserve Pandas for compatibility requirements with libraries that lack Polars support.
+Use Polars as the primary DataFrame library. Prefer lazy evaluation (`LazyFrame`) over eager execution to enable query optimization. Chain transformations declaratively and call `.collect()` only when results are needed. On Polars 2, lazy queries run on the streaming engine by default, which does not preserve row order: sort explicitly (or pass `maintain_order=True`) wherever order matters, and never pass the removed `collect(streaming=True)`. Reserve Pandas for compatibility requirements with libraries that lack Polars support.
 
 ## Rationale
 
@@ -44,4 +44,4 @@ Libraries requiring Pandas DataFrames (scikit-learn, some plotting libraries) ju
 
 ## Tooling
 
-Add Polars as a project dependency (`uv add polars`). Use `pl.scan_csv()`, `pl.scan_parquet()`, and `pl.scan_ndjson()` for lazy file reading. Profile memory usage with `polars.Config.set_verbose(True)` during development.
+Add Polars as a project dependency (`uv add polars`). Use `pl.scan_csv()`, `pl.scan_parquet()`, and `pl.scan_ndjson()` for lazy file reading, and `sink_parquet()` for results larger than memory. Profile memory usage with `polars.Config.set_verbose(True)` during development.

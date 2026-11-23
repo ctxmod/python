@@ -154,7 +154,7 @@ def run_pipeline(input_path: str, output_dir: str) -> None:
 
 ## Troubleshooting
 
-**OOM during collection**: Switch from eager to lazy evaluation. Use `collect(streaming=True)` for large results. Profile with `pl.Config.set_verbose(True)`.
+**OOM during collection**: Switch from eager to lazy evaluation. Write large results with `sink_parquet()` instead of collecting them (Polars 2 already streams lazy `collect()` calls; the `streaming=True` argument is removed). Profile with `pl.Config.set_verbose(True)`.
 
 **Slow per-record processing**: Move logic from generators to Polars expressions. `.apply()` is a last resort; prefer vectorized operations.
 
@@ -163,3 +163,7 @@ def run_pipeline(input_path: str, output_dir: str) -> None:
 ## Related
 
 - [Project Setup](../../../../core/packages/toolchain/reference/project_setup.md)
+
+## Sources
+
+- https://docs.pola.rs/releases/upgrade/2/ — Polars 2 streaming default and `collect(streaming=...)` removal (accessed 2026-11-22)

@@ -34,20 +34,32 @@ The Astral-based toolchain (uv, ruff) delivers 10-100x performance improvements 
 # pyproject.toml
 [dependency-groups]
 dev = [
-    "basedpyright>=0.1.0",
-    "ruff>=0.9.0",
-    "pytest>=8.0",
-    "pytest-asyncio>=0.24",
+    "basedpyright>=1.40",
+    "ruff>=0.17",
+    "pytest>=9.0",
+    "pytest-asyncio>=1.0",
 ]
 
 [tool.basedpyright]
-strict = true
+typeCheckingMode = "strict"
 
-[tool.ruff]
+[tool.ruff.lint]
 select = ["ALL"]
 ```
 
 **Incorrect**:
+```toml
+# stale spellings: deprecated or rejected by current uv, basedpyright, and ruff
+[tool.uv]
+dev-dependencies = ["basedpyright", "ruff"]
+
+[tool.basedpyright]
+strict = true          # rejected: `strict` is a list of paths; the run falls back to the default mode
+
+[tool.ruff]
+select = ["ALL"]       # deprecated top-level linter key; belongs under [tool.ruff.lint]
+```
+
 ```toml
 # pyproject.toml using legacy tools
 [tool.poetry.dev-dependencies]
@@ -63,4 +75,4 @@ Projects with complex binary dependencies (CUDA, MKL) may use Pixi alongside uv 
 
 ## Tooling
 
-Run `ruff check --fix .` for linting, `ruff format .` for formatting, and `basedpyright` for type checking. Use `just` or `uv run` for task orchestration. Contract-generation tools belong in the same dev surface and run through `uv run` so the lockfile — not the local environment — selects which revision executes; the toolchain reference owns the tool list and its pinning discipline.
+Run `ruff check --fix .` for linting, `ruff format .` for formatting, and `basedpyright` for type checking. Use `just` or `uv run` for task orchestration. Contract-generation tools run through a lock-aware runner so a lockfile — not the local environment — selects which revision executes: `uv run` for PyPI tools, the Node lock for Redocly CLI and buf, which are not PyPI packages (the PyPI name `buf` is an unrelated library). The toolchain reference owns the tool list, its distribution channels, and the pinning discipline.

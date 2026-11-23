@@ -18,7 +18,22 @@ class ItemCreate(BaseModel):
     tags: list[str] = Field(default_factory=list, max_length=10)
 ```
 
-Strict mode applies to the model and all nested models. A single non-strict model in a nested hierarchy creates a coercion gap. Apply strict mode at the base class level when using shared base models.
+`model_config` strictness is **per model class and does not propagate**: an `Outer` with `strict=True` still coerces `"2"` to `2` inside a nested `Inner` that lacks its own strict config (verified with Pydantic 2.14.4). A single non-strict model anywhere in the hierarchy is therefore a coercion gap. Define one shared base and derive every transport model — nested ones included — from it:
+
+```python
+class StrictModel(BaseModel):
+    model_config = ConfigDict(strict=True)
+
+class Money(StrictModel):
+    amount: int
+    currency: str
+
+class ItemCreate(StrictModel):
+    name: str = Field(min_length=1, max_length=255)
+    price: Money
+```
+
+Strict mode is mode-aware. Validating JSON (`model_validate_json`, which FastAPI request bodies use) still accepts the JSON string forms of types JSON cannot express natively — an ISO-8601 string for `datetime`, a UUID string for `UUID` — while rejecting `"42"` for `int`. Validating Python objects (`model_validate`) under strict rejects those strings. Test strictness through the same entry point production uses.
 
 ## Schema Separation
 
@@ -144,3 +159,8 @@ Pydantic v2 strict mode and validation patterns follow the library's official do
 - [Type Safety](../../../../core/packages/typing/reference/type_safety.md)
 - [FastAPI Patterns](../../fastapi/reference/fastapi.md)
 - [Routing and Handler Design](../../fastapi/reference/routing.md)
+
+## Sources
+
+- https://docs.pydantic.dev/latest/concepts/strict_mode/ — strict mode per model config and JSON-versus-Python validation differences, Pydantic 2.14 (accessed 2026-11-22; nested propagation probed with Pydantic 2.14.4)
+- https://docs.pydantic.dev/latest/concepts/conversion_table/ — which input types each mode accepts in strict mode (accessed 2026-11-22)

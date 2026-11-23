@@ -43,4 +43,4 @@ Prototype databases used exclusively for local experimentation may skip multi-lo
 
 ## Tooling
 
-Configure `version_locations` in `alembic.ini` for multi-package support. Use `aiosqlite` with in-memory databases for fast migration round-trip tests (`upgrade head`, `downgrade base`, `upgrade head`). Run integration tests against local PostgreSQL matching the production version. Set `lock_timeout = '5s'` in PostgreSQL migration scripts to fail fast on lock contention.
+Configure `version_locations` for multi-package support together with an explicit `path_separator` (or a TOML list under `[tool.alembic]`); without one, Alembic splits only on spaces and commas and silently drops the extra locations. Use `aiosqlite` with in-memory databases for fast migration round-trip tests (`upgrade head`, `downgrade base`, `upgrade head`). Run integration tests against local PostgreSQL matching the production version. Set `lock_timeout = '5s'` in PostgreSQL migration scripts to fail fast on lock contention.

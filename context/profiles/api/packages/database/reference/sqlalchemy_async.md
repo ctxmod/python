@@ -1,8 +1,18 @@
 # Database Patterns
 
-SQLAlchemy 2.0 async database patterns covering session management, repository design, connection pooling, transactions, and migrations.
+SQLAlchemy 2.x async database patterns covering session management, repository design, connection pooling, transactions, and migrations.
 
-SQLAlchemy 2.0's async API provides non-blocking database access that aligns with FastAPI's async-first architecture. Session-per-request lifecycle through `Depends` gives each request an isolated transaction. The repository pattern separates query logic from business logic, making both independently testable.
+SQLAlchemy 2.x's async API provides non-blocking database access that aligns with FastAPI's async-first architecture. Session-per-request lifecycle through `Depends` gives each request an isolated transaction. The repository pattern separates query logic from business logic, making both independently testable.
+
+## Installation (SQLAlchemy 2.1)
+
+SQLAlchemy 2.1.0 (2026-09-24) moved greenlet — required by every asyncio feature — into the `asyncio` extra, and dropped Python 3.10. Declare the extra explicitly:
+
+```bash
+uv add "sqlalchemy[asyncio]" asyncpg
+```
+
+Without it, `import sqlalchemy.ext.asyncio` raises `ImportError: The SQLAlchemy asyncio module requires that the Python 'greenlet' library is installed` (verified with 2.1.9). Code written against 2.0 that relied on greenlet arriving transitively breaks on upgrade at import time, not at query time. 2.1 also autoflushes unconditionally before every execution, and `Row` is typed per column (`Row[int, str]`).
 
 ## Async Engine and Session Factory
 
@@ -23,7 +33,7 @@ engine = create_async_engine(
 async_session_factory = async_sessionmaker(engine, expire_on_commit=False)
 ```
 
-Set `expire_on_commit=False` to prevent lazy-load attempts on committed objects. Without this setting, accessing attributes on a committed model triggers a synchronous load that raises `MissingGreenlet` in async contexts.
+Set `expire_on_commit=False` to prevent lazy-load attempts on committed objects. Without this setting, accessing attributes on a committed model triggers an implicit refresh that raises `MissingGreenlet` in async contexts.
 
 ### Engine Configuration
 
@@ -34,16 +44,19 @@ Set `expire_on_commit=False` to prevent lazy-load attempts on committed objects.
 | `pool_recycle` | 3600 | Prevent stale connections |
 | `pool_pre_ping` | True | Detect dead connections before use |
 
-Start with `pool_size` equal to the number of uvicorn workers and adjust based on monitoring.
+The pool is per process: every uvicorn/gunicorn worker process builds its own engine and pool. Size from the database side — `workers × (pool_size + max_overflow)`, summed over every replica and every other client, must stay under the server's `max_connections` with headroom for migrations and administration. Within one worker, `pool_size` bounds the requests that can hold a connection concurrently; behind an external pooler (PgBouncer in transaction mode), use `NullPool` and let the pooler own the limit.
 
 ## Session-Per-Request
 
 Provide database sessions through a FastAPI dependency that creates one session per request. The session commits on success and rolls back on failure:
 
 ```python
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncIterator
+from typing import Annotated
 
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
+from fastapi import Depends
+
+async def get_session() -> AsyncIterator[AsyncSession]:
     async with async_session_factory() as session:
         try:
             yield session
@@ -51,9 +64,11 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
         except Exception:
             await session.rollback()
             raise
+
+SessionDep = Annotated[AsyncSession, Depends(get_session, scope="function")]
 ```
 
-This pattern ensures each request operates within a single transaction boundary. The session opens when the dependency resolves and closes after the response completes, preventing connection leaks.
+This pattern ensures each request operates within a single transaction boundary. `scope="function"` (FastAPI 0.121.0+) makes the commit run when the handler returns and before the response is sent; under the default `"request"` scope the commit would run after the client already received its status code, so a failed commit would be invisible to it. The FastAPI patterns reference owns the scope semantics ([FastAPI Patterns](../../fastapi/reference/fastapi.md)).
 
 ## Repository Pattern
 
@@ -111,7 +126,7 @@ class User(Base):
 
 ## Relationships and Eager Loading
 
-Load relationships explicitly in queries to avoid the N+1 problem. Lazy loading (the default) fails in async contexts because it triggers synchronous queries that raise `MissingGreenlet`.
+Load relationships explicitly in queries to avoid the N+1 problem. Lazy loading (the default) fails in async contexts because it triggers implicit I/O that raises `MissingGreenlet`. Make the failure loud and early: declare relationships with `lazy="raise"` (or `"raise_on_sql"`) so an unloaded access raises at the line that caused it, and mix in `AsyncAttrs` on the declarative base for the rare deliberate lazy access (`await user.awaitable_attrs.orders`).
 
 ```python
 async def get_user_with_orders(self, user_id: int) -> User | None:
@@ -125,7 +140,7 @@ Use `selectinload` for one-to-many relationships and `joinedload` for many-to-on
 
 ## Migrations with Alembic
 
-Use Alembic for schema migrations. Configure `env.py` with the async migration runner for compatibility with the async engine. Generate migrations with `alembic revision --autogenerate -m "description"` and review every autogenerated migration before applying -- autogenerate misses index renames, data migrations, and constraint modifications.
+Use Alembic for schema migrations. Start from the async template (`alembic init -t async alembic`), whose `env.py` runs the synchronous migration context through `connection.run_sync` on the async engine; the data profile's migrations package owns the multi-location and pyproject-configuration detail. Generate migrations with `alembic revision --autogenerate -m "description"` and review every autogenerated migration before applying -- autogenerate misses index renames, data migrations, and constraint modifications.
 
 | Practice | Rationale |
 |----------|-----------|
@@ -147,3 +162,11 @@ SQLAlchemy 2.0 async patterns follow the library's official documentation. Sessi
 - [FastAPI Patterns](../../fastapi/reference/fastapi.md)
 - [Type Safety](../../../../core/packages/typing/reference/type_safety.md)
 - [Project Structure](../../../../core/packages/structure/reference/structure.md)
+
+## Sources
+
+- https://docs.sqlalchemy.org/en/21/changelog/migration_21.html — greenlet moved to the `asyncio` extra, Python 3.10 dropped, unconditional autoflush, typed `Row` (accessed 2026-11-22; import failure probed with SQLAlchemy 2.1.9)
+- https://www.sqlalchemy.org/blog/ — SQLAlchemy 2.1.0 release announcement, 2026-09-24 (accessed 2026-11-22)
+- https://docs.sqlalchemy.org/en/21/orm/extensions/asyncio.html — `AsyncAttrs`, `awaitable_attrs`, implicit-IO prevention (accessed 2026-11-22)
+- https://docs.sqlalchemy.org/en/21/core/pooling.html — per-process pools, `NullPool` behind external poolers (accessed 2026-11-22)
+- https://alembic.sqlalchemy.org/en/latest/cookbook.html#using-asyncio-with-alembic — the async template and `run_sync` (accessed 2026-11-22)

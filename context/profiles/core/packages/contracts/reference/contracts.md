@@ -92,7 +92,8 @@ calling committed output disposable misstates both.)
 The generation pipeline, in semantics: the modular contract sources are
 linted, bundled into one portable reviewed artifact, and every
 language output is generated from that same bundle. The toolchain is
-pinned in lockfiles and invoked through `uv run` or `uvx`. The resolved
+pinned in lockfiles and invoked through a lock-aware runner (`uv run`
+for PyPI tools, `npx --no-install` for the npm-distributed ones). The resolved
 bundle is retained as a reviewed build artifact. Concrete tool selection
 and pinning live in this profile's packaging and codegen-toolchain
 reference.
@@ -277,7 +278,7 @@ async def create_item(payload: CreateItemRequest) -> ItemResponse:
 ```just
 # Regeneration is a recipe; drift is a build failure, not a warning.
 contract-generate:
-    uv run redocly bundle contracts/api/openapi.yaml --output gen/api/bundle/openapi.yaml
+    npx --no-install redocly bundle contracts/api/openapi.yaml --output gen/api/bundle/openapi.yaml
     uv run datamodel-codegen --input gen/api/bundle/openapi.yaml --input-file-type openapi --output gen/api/python/models.py --output-model-type pydantic_v2.BaseModel
 ```
 

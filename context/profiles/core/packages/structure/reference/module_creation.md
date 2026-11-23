@@ -41,15 +41,13 @@ Extended description if necessary. Explains the module's role
 within the package and its primary abstractions.
 """
 
-from __future__ import annotations
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 ```
 
-Use `from __future__ import annotations` (PEP 563) to enable postponed evaluation of annotations. This allows forward references and reduces import-time overhead. Place type-only imports inside `TYPE_CHECKING` blocks to prevent circular imports at runtime.
+On a Python 3.14+ floor, annotations are evaluated lazily by default (PEP 649/749), so forward references and `TYPE_CHECKING`-only imports work in annotations without any future import. While `requires-python` still admits 3.13 or older, add `from __future__ import annotations` (PEP 563) as the module's first statement after the docstring to get the same behavior. Place type-only imports inside `TYPE_CHECKING` blocks to prevent circular imports at runtime — except in modules whose annotations a library evaluates at runtime (Pydantic models, FastAPI route signatures, SQLAlchemy `Mapped[...]` columns): there every annotated name must be a real runtime import. The type-safety reference owns the evaluation model ([Type Safety](../../typing/reference/type_safety.md)).
 
 ### 3. Design the Public Interface
 
@@ -167,3 +165,8 @@ Run `just ci` to verify linting, type checking, and tests pass. Common verificat
 ## Related
 
 - [Project Setup](../../toolchain/reference/project_setup.md)
+
+## Sources
+
+- https://peps.python.org/pep-0749/ — deferred annotation evaluation in Python 3.14 and the planned `from __future__ import annotations` deprecation path (accessed 2026-11-22)
+- https://peps.python.org/pep-0563/ — postponed evaluation via the future import, for floors below 3.14 (accessed 2026-11-22)

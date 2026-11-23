@@ -23,13 +23,20 @@ uv add torch torchvision hydra-core omegaconf mlflow
 uv add --dev pytest-benchmark
 ```
 
-For CUDA support, configure the PyTorch index in `pyproject.toml`:
+For CUDA support, configure the PyTorch index in `pyproject.toml` as an **explicit** index and route only the PyTorch packages to it:
 
 ```toml
 [[tool.uv.index]]
-name = "pytorch-cuda"
-url = "https://download.pytorch.org/whl/cu124"
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"   # pick the cuXXX matching the target driver from the PyTorch install matrix
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu130", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cu130", marker = "sys_platform == 'linux'" }]
 ```
+
+Without `explicit = true` the extra index joins resolution for every package, and an unrelated dependency can resolve from the PyTorch mirror. The `marker` keeps macOS (no CUDA wheels) on PyPI. `uv pip install --torch-backend=auto` detects the local driver, but it exists only in the `uv pip` interface — `uv lock`/`uv sync` projects use the sources table above.
 
 ### 2. Create Configuration Structure
 
@@ -143,3 +150,7 @@ Verify: Hydra resolves configuration, MLflow creates a run with logged parameter
 
 - [Training, Checkpointing, and Resumption](../../training/reference/training.md)
 - [Project Setup](../../../../core/packages/toolchain/reference/project_setup.md)
+
+## Sources
+
+- https://docs.astral.sh/uv/guides/integration/pytorch/ — explicit PyTorch indexes, `tool.uv.sources` markers, cu126/cu128/cu130 variants, `--torch-backend` limited to `uv pip` (accessed 2026-11-22)

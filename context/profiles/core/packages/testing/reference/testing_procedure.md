@@ -7,7 +7,7 @@ Procedure for running the Python test toolchain, organizing fixtures, collecting
 ## Prerequisites
 
 - pytest and plugins installed (`uv add --dev pytest pytest-cov pytest-asyncio`)
-- `pyproject.toml` configured with `[tool.pytest.ini_options]`
+- `pyproject.toml` configured with `[tool.pytest]` (native TOML, pytest 9+; `[tool.pytest.ini_options]` with string values on older pytest)
 - Test directory structure mirroring source layout
 - Source code with testable modules
 
@@ -137,20 +137,23 @@ Common isolation failures:
 | Skip slow | `uv run pytest -m "not slow"` | Quick local validation |
 | Parallel | `uv run pytest -n auto` | Full suite runs |
 
-For async tests, set `asyncio_mode = "auto"` in `pyproject.toml` and use `@pytest_asyncio.fixture` for async fixtures. Mark slow tests with `@pytest.mark.slow` for selective exclusion.
+For async tests, set `asyncio_mode = "auto"` in `pyproject.toml` and use `@pytest_asyncio.fixture` for async fixtures. pytest-asyncio 1.0 removed the `event_loop` fixture: a fixture or test that must share a loop declares it with `loop_scope` (`@pytest_asyncio.fixture(scope="session", loop_scope="session")`, `@pytest.mark.asyncio(loop_scope="session")`), and `asyncio_default_fixture_loop_scope` sets the default. Code that still requests or overrides `event_loop` fails at collection. Mark slow tests with `@pytest.mark.slow` for selective exclusion.
 
 ### 7. Respect the Tier Gate
 
-The suite this procedure runs covers the fast-offline and integration tiers only. Evaluation-tier tests — anything consuming real tokens, real credentials, or incurring real cost — are marker-deselected by default so no automatic run selects them. Register every marker the suite uses in the same block: an unregistered marker errors under `--strict-markers` and, without it, silently selects nothing — which reads as a passing gate.
+The suite this procedure runs covers the fast-offline and integration tiers only. Evaluation-tier tests — anything consuming real tokens, real credentials, or incurring real cost — are marker-deselected by default so no automatic run selects them. Register every marker the suite uses in the same block: an unregistered marker errors under strict mode and, without it, silently selects nothing — which reads as a passing gate.
 
 ```toml
-[tool.pytest.ini_options]
+[tool.pytest]
+strict = true    # pytest 9: strict_config, strict_markers, strict_xfail, strict_parametrization_ids
 markers = [
     "contract: contract-conformance tests; fast-offline tier",
     "evaluation: evaluation tier; manual invocation only, never selected in CI",
 ]
-addopts = "-m 'not evaluation'"
+addopts = ["-m", "not evaluation"]
 ```
+
+On pytest older than 9, the same settings live in `[tool.pytest.ini_options]` with string values (`addopts = "--strict-markers -m 'not evaluation'"`). Verified with pytest 9.2.0: under `strict = true` a misspelled `@pytest.mark.evalution` fails collection with "'evalution' not found in `markers` configuration option".
 
 They run only through the explicit manual invocation documented in the testing principles reference, and never via a widened CI command. See the contract-testing procedure for the contract-gate side of the suite.
 
@@ -171,6 +174,8 @@ They run only through the explicit manual invocation documented in the testing p
 
 **Async tests hang**: Check event loop scope. Use `loop_scope="session"` for cross-test fixtures. Avoid mixing sync and async fixtures at the same scope.
 
+**`fixture 'event_loop' not found`**: the suite predates pytest-asyncio 1.0. Delete the `event_loop` fixture override and declare `loop_scope` on the fixtures and tests that share a loop.
+
 **Coverage lower than expected**: Verify `source` in `[tool.coverage.run]` points to `src/`.
 
 - [Python Toolchain](../../toolchain/reference/tooling.md)
@@ -179,3 +184,8 @@ They run only through the explicit manual invocation documented in the testing p
 
 - [Type Safety](../../typing/reference/type_safety.md)
 - [Module Creation](../../structure/reference/module_creation.md)
+
+## Sources
+
+- https://docs.pytest.org/en/stable/reference/customize.html — `[tool.pytest]` native TOML since pytest 9.0; `[tool.pytest.ini_options]` since 6.0 (accessed 2026-11-22; `strict` behavior probed with pytest 9.2.0)
+- https://pytest-asyncio.readthedocs.io/en/stable/reference/changelog.html — `event_loop` fixture removed in 1.0.0; `loop_scope` and `asyncio_default_fixture_loop_scope`; pytest-asyncio 1.5.0 (accessed 2026-11-22)

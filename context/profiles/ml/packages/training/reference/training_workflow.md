@@ -45,7 +45,7 @@ def maybe_resume(
     checkpoints = sorted(checkpoint_dir.glob("epoch_*.pt"))
     if not checkpoints:
         return 0
-    checkpoint = torch.load(checkpoints[-1], weights_only=False)
+    checkpoint = torch.load(checkpoints[-1], weights_only=True)  # the default since 2.6; state dicts need nothing more
     model.load_state_dict(checkpoint["model_state_dict"])
     optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
     scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
@@ -141,3 +141,7 @@ Verify: loss decreases, checkpoints appear, MLflow logs metrics. Test resumption
 ## Related
 
 - [Experiment Design and Tracking](../../experiments/reference/experiments.md)
+
+## Sources
+
+- https://docs.pytorch.org/docs/2.15/generated/torch.load.html — `weights_only=True` default (accessed 2026-11-22; checkpoint shape verified loadable on torch 2.15.0)
